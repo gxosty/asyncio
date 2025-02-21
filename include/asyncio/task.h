@@ -116,7 +116,9 @@ struct Task: private NonCopyable {
         }
         const std::source_location& get_frame_info() const final { return frame_info_; }
         void dump_backtrace(size_t depth = 0) const final {
+#ifdef ASYNCIO_WITH_FMT            
             fmt::print("[{}] {}\n", depth, frame_name());
+#endif
             if (continuation_) { continuation_->dump_backtrace(depth + 1); }
             else { fmt::print("\n"); }
         }

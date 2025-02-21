@@ -11,6 +11,7 @@
 #include <asyncio/task.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <netdb.h>

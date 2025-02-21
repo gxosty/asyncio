@@ -7,7 +7,10 @@
 #include <asyncio/asyncio_ns.h>
 #include <cstdint>
 #include <source_location>
-#include <fmt/core.h>
+
+#ifdef ASYNCIO_WITH_FMT
+    #include <fmt/core.h>
+#endif
 
 ASYNCIO_NS_BEGIN
 // for cancelled
@@ -42,9 +45,13 @@ struct HandleInfo {
 
 struct CoroHandle: Handle {
     std::string frame_name() const {
+#ifdef ASYNCIO_WITH_FMT
         const auto& frame_info = get_frame_info();
         return fmt::format("{} at {}:{}", frame_info.function_name(),
                            frame_info.file_name(), frame_info.line());
+#else        
+        return "";
+#endif        
     }
     virtual void dump_backtrace(size_t depth = 0) const {};
     void schedule();

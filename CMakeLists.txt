@@ -59,7 +59,12 @@ endif()
 
 include(GNUInstallDirs)
 
-find_package(fmt REQUIRED)
+if(WITH_FMT)
+    find_package(fmt REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WITH_FMT=1)
+    message(STATUS "Enabled fmt library for task call stack dumping")
+endif()
 
 set_target_properties(${PROJECT_NAME}
 PROPERTIES
@@ -74,8 +79,6 @@ target_compile_options(${PROJECT_NAME} PUBLIC -fPIC)
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
-
-target_link_libraries(asyncio PUBLIC fmt::fmt)
 
 install(
     DIRECTORY ${CMAKE_SOURCE_DIR}/include/asyncio
