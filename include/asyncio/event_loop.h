@@ -4,8 +4,11 @@
 #ifndef ASYNCIO_EVENT_LOOP_H
 #define ASYNCIO_EVENT_LOOP_H
 #define FMT_HEADER_ONLY
+
+#ifdef ASYNCIO_WITH_FMT
 #include <fmt/core.h>
 #include <fmt/format.h>
+#endif
 #include <asyncio/handle.h>
 #include <asyncio/noncopyable.h>
 #include <asyncio/concept/future.h>

@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 set(PROJECT_VERSION 1.0.0)
 set(TARGET_NAME "asyncio")
 project(${TARGET_NAME}
-        VERSION ${PROJECT_VERSION}
-        LANGUAGES CXX)
+        VERSION ${PROJECT_VERSION})
 
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
