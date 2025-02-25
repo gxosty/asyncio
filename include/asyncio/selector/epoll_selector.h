@@ -4,16 +4,30 @@
 
 #ifndef ASYNCIO_EPOLL_SELECTOR_H
 #define ASYNCIO_EPOLL_SELECTOR_H
+#ifdef ASYNCIO_WITH_FMT
 #include "fmt/core.h"
+#endif // ASYNCIO_WITH_FMT
 #include <asyncio/asyncio_ns.h>
 #include <asyncio/selector/event.h>
 #include <unistd.h>
+#ifdef _WIN32
+#include <wepoll.h>
+#define WINDOWS_LEAN_AND_MEAN
+#include <windows.h>
+typedef HANDLE epoll_handle_t;
+#else
 #include <sys/epoll.h>
+typedef int epoll_handle_t;
+#endif // _WIN32
 #include <vector>
 ASYNCIO_NS_BEGIN
 struct EpollSelector {
     EpollSelector(): epfd_(epoll_create1(0)) {
+#ifdef _WIN32
+        if (epfd_ == INVALID_HANDLE_VALUE) {
+#else
         if (epfd_ < 0) {
+#endif // _WIN32
             perror("epoll_create1");
             throw;
         }
@@ -38,7 +52,15 @@ struct EpollSelector {
         return result;
     }
     ~EpollSelector() {
-        if (epfd_ > 0) { close(epfd_); }
+#ifdef _WIN32
+        if (epfd_ != INVALID_HANDLE_VALUE) {
+            epoll_close(epfd_);
+        }
+#else
+        if (epfd_ > 0) {
+            close(epfd_);
+        }
+#endif // _WIN32
     }
     bool is_stop() { return register_event_count_ == 1; }
     void register_event(const Event& event) {
@@ -55,7 +77,7 @@ struct EpollSelector {
         }
     }
 private:
-    int epfd_;
+    epoll_handle_t epfd_;
     int register_event_count_ {1};
 };
 ASYNCIO_NS_END

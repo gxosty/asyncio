@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.18)
 set(PROJECT_VERSION 1.0.0)
 set(TARGET_NAME "asyncio")
 project(${TARGET_NAME}
-        VERSION ${PROJECT_VERSION})
+        VERSION ${PROJECT_VERSION}
+        LANGUAGES C CXX)
 
 option(WITH_FMT "Build with fmt library for coroutines call stack dumping" OFF)
 
@@ -79,6 +80,10 @@ if(WITH_OPENSSL)
         target_link_directories(${ASYNCIO_OPENSSL_DIR}/lib)
     endif()
     target_link_libraries(${PROJECT_NAME} ssl crypto)
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    include(cmake/wepoll.cmake)
 endif()
 
 set_target_properties(${PROJECT_NAME}

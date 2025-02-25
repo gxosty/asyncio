@@ -10,7 +10,7 @@
 namespace ASYNCIO_NS {
 using Selector = KQueueSelector;
 }
-#elif defined(__linux)
+#elif defined(__linux) || defined(_WIN32)
 #include <asyncio/selector/epoll_selector.h>
 namespace ASYNCIO_NS {
 using Selector = EpollSelector;

@@ -15,8 +15,9 @@
 #elif defined(__linux__)
     #include <sys/epoll.h>
     using Flags_t = uint32_t;
-#else
-    #error "Support only Linux & MacOS!"
+#elif defined (_WIN32)
+    #include <wepoll.h>
+    using Flags_t = uint32_t;
 #endif
 
 ASYNCIO_NS_BEGIN
@@ -25,11 +26,11 @@ struct Event {
     #if defined(__APPLE__)
         EVENT_READ = EVFILT_READ,
         EVENT_WRITE = EVFILT_WRITE
-    #elif defined(__linux__)
+    #elif defined(__linux__) || defined(_WIN32)
         EVENT_READ = EPOLLIN,
         EVENT_WRITE = EPOLLOUT
     #else
-        #error "Support only Linux & MacOS!"
+        #error "Unsupported platform"
     #endif
     };
 
