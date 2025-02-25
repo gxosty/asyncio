@@ -5,8 +5,14 @@ project(${TARGET_NAME}
         VERSION ${PROJECT_VERSION}
         LANGUAGES CXX)
 
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+option(WITH_FMT "Build with fmt library for coroutines call stack dumping" OFF)
+
+# Set OpenSSL_DIR to OpenSSL installation path if it is places
+# somewhere else than in system directory
+option(WITH_OPENSSL "Build with OpenSSL for HTTPS support" OFF)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -36,6 +42,7 @@ set(ASYNCIO_INC
         include/asyncio/callstack.h
         include/asyncio/open_connection.h
         include/asyncio/stream.h
+        include/asyncio/datagram.h
         include/asyncio/start_server.h
         include/asyncio/finally.h
         )
