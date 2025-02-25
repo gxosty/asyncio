@@ -6,6 +6,7 @@
 #define ASYNCIO_OPEN_CONNECTION_H
 #include <asyncio/asyncio_ns.h>
 #include <asyncio/stream.h>
+#include <asyncio/datagram.h>
 #include <asyncio/finally.h>
 #include <asyncio/selector/event.h>
 #include <exception>
@@ -66,6 +67,36 @@ Task<Stream> open_connection(std::string_view ip, uint16_t port) {
     }
 
     co_return Stream {sockfd};
+}
+
+Task<Datagram> open_udp(std::string_view ip, uint16_t port) {
+    addrinfo hints { .ai_family = AF_UNSPEC, .ai_socktype = SOCK_DGRAM};
+    addrinfo *server_info {nullptr};
+    auto service = std::to_string(port);
+    // TODO: getaddrinfo is a blocking api
+    if (int rv = getaddrinfo(ip.data(), service.c_str(), &hints, &server_info);
+            rv != 0) {
+        throw std::system_error(std::make_error_code(std::errc::address_not_available));
+    }
+    finally{ freeaddrinfo(server_info); };
+
+    int sockfd = -1;
+    for (auto p = server_info; p != nullptr; p = p->ai_next) {
+        if ((sockfd = ::socket(p->ai_family, p->ai_socktype | SOCK_NONBLOCK, p->ai_protocol)) == -1) {
+            continue;
+        }
+        socket::set_blocking(sockfd, false);
+        if (!::connect(sockfd, p->ai_addr, p->ai_addrlen)) {
+            break;
+        }
+        close(sockfd);
+        sockfd = -1;
+    }
+    if (sockfd == -1) {
+        throw std::system_error(std::make_error_code(std::errc::address_not_available));
+    }
+
+    co_return Datagram {sockfd};
 }
 
 ASYNCIO_NS_END
