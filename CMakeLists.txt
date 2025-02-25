@@ -73,6 +73,15 @@ if(WITH_FMT)
     message(STATUS "Enabled fmt library for task call stack dumping")
 endif()
 
+if(WITH_OPENSSL)
+    if(OpenSSL_DIR)
+        set(ASYNCIO_OPENSSL_DIR OpenSSL_DIR)
+        target_include_directories(${ASYNCIO_OPENSSL_DIR}/include)
+        target_link_directories(${ASYNCIO_OPENSSL_DIR}/lib)
+    endif()
+    target_link_libraries(${PROJECT_NAME} ssl crypto)
+endif()
+
 set_target_properties(${PROJECT_NAME}
 PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
