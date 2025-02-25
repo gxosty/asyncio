@@ -4,8 +4,14 @@ set(TARGET_NAME "asyncio")
 project(${TARGET_NAME}
         VERSION ${PROJECT_VERSION})
 
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+option(WITH_FMT "Build with fmt library for coroutines call stack dumping" OFF)
+
+# Set OpenSSL_DIR to OpenSSL installation path if it is places
+# somewhere else than in system directory
+option(WITH_OPENSSL "Build with OpenSSL for HTTPS support" OFF)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,6 +41,7 @@ set(ASYNCIO_INC
         include/asyncio/callstack.h
         include/asyncio/open_connection.h
         include/asyncio/stream.h
+        include/asyncio/datagram.h
         include/asyncio/start_server.h
         include/asyncio/finally.h
         )
@@ -63,6 +70,15 @@ if(WITH_FMT)
     target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WITH_FMT=1)
     message(STATUS "Enabled fmt library for task call stack dumping")
+endif()
+
+if(WITH_OPENSSL)
+    if(OpenSSL_DIR)
+        set(ASYNCIO_OPENSSL_DIR OpenSSL_DIR)
+        target_include_directories(${ASYNCIO_OPENSSL_DIR}/include)
+        target_link_directories(${ASYNCIO_OPENSSL_DIR}/lib)
+    endif()
+    target_link_libraries(${PROJECT_NAME} ssl crypto)
 endif()
 
 set_target_properties(${PROJECT_NAME}
