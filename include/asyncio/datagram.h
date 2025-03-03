@@ -1,5 +1,18 @@
 #ifndef ASYNCIO_DATAGRAM_H
 #define ASYNCIO_DATAGRAM_H
+#include <asyncio/asyncio_ns.h>
+#include <asyncio/event_loop.h>
+#include <asyncio/selector/event.h>
+#include <asyncio/noncopyable.h>
+#include <asyncio/task.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <utility>
+#include <vector>
 
 namespace asyncio
 {
