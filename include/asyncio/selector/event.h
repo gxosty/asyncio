@@ -16,7 +16,7 @@
     #include <sys/epoll.h>
     using Flags_t = uint32_t;
 #elif defined (_WIN32)
-    #include <wepoll.h>
+    #include <winsock2.h>
     using Flags_t = uint32_t;
 #endif
 
@@ -26,9 +26,12 @@ struct Event {
     #if defined(__APPLE__)
         EVENT_READ = EVFILT_READ,
         EVENT_WRITE = EVFILT_WRITE
-    #elif defined(__linux__) || defined(_WIN32)
+    #elif defined(__linux__)
         EVENT_READ = EPOLLIN,
         EVENT_WRITE = EPOLLOUT
+    #elif defined(_WIN32)
+        EVENT_READ = POLLIN,
+        EVENT_WRITE = POLLOUT
     #else
         #error "Unsupported platform"
     #endif
@@ -37,6 +40,11 @@ struct Event {
     int fd;
     Flags flags;
     HandleInfo handle_info;
+
+    inline bool operator==(const Event& other) const
+    {
+        return ((fd == other.fd) && (flags == other.flags));
+    }
 };
 ASYNCIO_NS_END
 

@@ -6,14 +6,19 @@
 #define ASYNCIO_SELECTOR_H
 
 #if defined(__APPLE__)
-#include <asyncio/selector/kqueue_selector.h>
-namespace ASYNCIO_NS {
+#include "kqueue_selector.h"
+namespace asyncio {
 using Selector = KQueueSelector;
 }
-#elif defined(__linux) || defined(_WIN32)
-#include <asyncio/selector/epoll_selector.h>
-namespace ASYNCIO_NS {
+#elif defined(__linux)
+#include "epoll_selector.h"
+namespace asyncio {
 using Selector = EpollSelector;
+}
+#elif defined(_WIN32)
+#include "wsapoll_selector.h"
+namespace asyncio {
+using Selector = WSAPollSelector;
 }
 #endif
 

@@ -6,6 +6,7 @@
 #define ASYNCIO_HANDLE_H
 #include <asyncio/asyncio_ns.h>
 #include <cstdint>
+#include <string>
 #include <source_location>
 
 #ifdef ASYNCIO_WITH_FMT

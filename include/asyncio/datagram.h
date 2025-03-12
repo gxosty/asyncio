@@ -1,22 +1,24 @@
 #ifndef ASYNCIO_DATAGRAM_H
 #define ASYNCIO_DATAGRAM_H
+
+#ifdef _WIN32
+    #include <winsock2.h>
+#else
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+#endif
+
 #include <asyncio/asyncio_ns.h>
 #include <asyncio/event_loop.h>
 #include <asyncio/selector/event.h>
 #include <asyncio/noncopyable.h>
 #include <asyncio/task.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <netdb.h>
 #include <utility>
 #include <vector>
 
-namespace asyncio
-{
-
+ASYNCIO_NS_BEGIN
 struct Datagram: NonCopyable {
     using Buffer = std::vector<char>;
     Datagram(int fd): read_fd_(fd), write_fd_(dup(fd)) {
@@ -82,7 +84,6 @@ private:
     constexpr static size_t chunk_size = 4096;
 };
 
-
-}
+ASYNCIO_NS_END
 
 #endif // ASYNCIO_DATAGRAM_H

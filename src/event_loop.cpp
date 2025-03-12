@@ -40,8 +40,12 @@ void EventLoop::run_once() {
         timeout = std::max(when - time(), MSDuration(0));
     }
 
-    auto event_lists = selector_.select(timeout.has_value() ? timeout->count() : -1);
-    for (auto&& event: event_lists) {
+    std::vector<Event> events_list;
+    selector_.select(
+        timeout.has_value() ? timeout->count() : -1,
+        events_list
+    );
+    for (auto&& event: events_list) {
         ready_.push(event.handle_info);
     }
 

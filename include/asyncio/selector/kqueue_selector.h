@@ -27,7 +27,7 @@ struct KQueueSelector {
         }
     }
 
-    std::vector<Event> select(int timeout /* ms */) {
+    void select(int timeout /* ms */, std::vector<Event>& result) {
         errno = 0;
         using namespace std::chrono;
         auto nsec = duration_cast<nanoseconds>(milliseconds{ timeout });
@@ -44,7 +44,6 @@ struct KQueueSelector {
         if (!ndfs)
             return {}; // return empty std::vector<Event>
 
-        std::vector<Event> result;
         if (ndfs >= 100) [[unlikely]] {
             result.reserve(ndfs);
         }

@@ -5,11 +5,15 @@ project(${TARGET_NAME}
         VERSION ${PROJECT_VERSION}
         LANGUAGES C CXX)
 
+# --- # --- # --- # --- # --- # --- #
+
 option(WITH_FMT "Build with fmt library for coroutines call stack dumping" OFF)
 
-# Set OpenSSL_DIR to OpenSSL installation path if it is places
-# somewhere else than in system directory
-option(WITH_OPENSSL "Build with OpenSSL for HTTPS support" OFF)
+# set WOLFSSL_INCLUDE_DIR and/or WOLFSSL_LIBRARY_DIR to wolfssl include
+# and/or lib directory if it wasn't installed on the system
+option(WITH_WOLFSSL "Build with wolfSSL for HTTPS support" OFF)
+
+# --- # --- # --- # --- # --- # --- #
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
@@ -18,51 +22,25 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(ASYNCIO_INC
-        include/asyncio/asyncio_ns.h
-        include/asyncio/task.h
-        include/asyncio/event_loop.h
-        include/asyncio/runner.h
-        include/asyncio/handle.h
-        include/asyncio/concept/future.h
-        include/asyncio/noncopyable.h
-        include/asyncio/selector/epoll_selector.h
-        include/asyncio/selector/kqueue_selector.h
-        include/asyncio/selector/event.h
-        include/asyncio/selector/selector.h
-        include/asyncio/void_value.h
-        include/asyncio/exception.h
-        include/asyncio/wait_for.h
-        include/asyncio/sleep.h
-        include/asyncio/schedule_task.h
-        include/asyncio/concept/awaitable.h
-        include/asyncio/concept/promise.h
-        include/asyncio/gather.h
-        include/asyncio/result.h
-        include/asyncio/callstack.h
-        include/asyncio/open_connection.h
-        include/asyncio/stream.h
-        include/asyncio/datagram.h
-        include/asyncio/start_server.h
-        include/asyncio/finally.h
-        )
+# --- # --- # --- # --- # --- # --- #
+
+set(ASYNCIO_INCLUDES
+    src/event_loop.cpp
+    src/connection.cpp
+    src/socket.cpp
+)
 
 if(BUILD_SHARED_LIBS)
-    add_library(asyncio SHARED
-            ${ASYNC_INC}
-            src/event_loop.cpp)
+    add_library(asyncio SHARED ${ASYNCIO_INCLUDES})
 else()
-    add_library(asyncio STATIC 
-            ${ASYNC_INC}
-            src/event_loop.cpp)
+    add_library(asyncio STATIC ${ASYNCIO_INCLUDES})
 endif(BUILD_SHARED_LIBS)
 
-
-if (BUILD_TESTING)
+if(BUILD_TESTING)
     add_subdirectory(third_party/Catch2)
     add_subdirectory(third_party/nanobench)
     add_subdirectory(test)
-endif()
+endif(BUILD_TESTING)
 
 include(GNUInstallDirs)
 
@@ -71,16 +49,18 @@ if(WITH_FMT)
     target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
     target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WITH_FMT=1)
     message(STATUS "Enabled fmt library for task call stack dumping")
-endif()
+endif(WITH_FMT)
 
-if(WITH_OPENSSL)
-    if(OpenSSL_DIR)
-        set(ASYNCIO_OPENSSL_DIR OpenSSL_DIR)
-        target_include_directories(${ASYNCIO_OPENSSL_DIR}/include)
-        target_link_directories(${ASYNCIO_OPENSSL_DIR}/lib)
-    endif()
-    target_link_libraries(${PROJECT_NAME} ssl crypto)
-endif()
+if(WITH_WOLFSSL)
+    if(WOLFSSL_INCLUDE_DIR)
+        target_include_directories(${PROJECT_NAME} PUBLIC ${WOLFSSL_INCLUDE_DIR})
+    endif(WOLFSSL_INCLUDE_DIR)
+    if(WOLFSSL_LIBRARY_DIR)
+        target_link_directories(${PROJECT_NAME} PUBLIC ${WOLFSSL_LIBRARY_DIR})
+    endif(WOLFSSL_LIBRARY_DIR)
+    target_link_libraries(${PROJECT_NAME} wolfssl)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WITH_SSL=1)
+endif(WITH_WOLFSSL)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     include(cmake/wepoll.cmake)

@@ -1,9 +1,5 @@
-//
-// Created by netcan on 2021/11/30.
-//
-
-#ifndef ASYNCIO_STREAM_H
-#define ASYNCIO_STREAM_H
+#ifndef ASYNCIO_SSLSTREAM_H
+#define ASYNCIO_SSLSTREAM_H
 
 #include "event_loop.h"
 #include "selector/event.h"
@@ -12,36 +8,45 @@
 #include "socket.h"
 #include "types.h"
 #include <unistd.h>
+#include <fcntl.h>
 #include <utility>
 #include <vector>
 
-#include "errno.h"
+#include <wolfssl/options.h>
+#include <wolfssl/ssl.h>
 
 namespace asyncio
 {
 
-struct Stream: NonCopyable {
-    Stream(int fd)
-        : read_sock_(fd)
+struct SslStream: NonCopyable {
+    SslStream(WOLFSSL* ssl, int fd)
+        : ssl_(ssl)
+        , read_sock_(fd)
         , write_sock_(Socket::duplicate(read_sock_))
         , read_ev_(read_sock_.get_fd(), Event::Flags::EVENT_READ)
         , write_ev_(write_sock_.get_fd(), Event::Flags::EVENT_WRITE)
         , read_awaiter_(get_event_loop().wait_event(read_ev_))
         , write_awaiter_(get_event_loop().wait_event(write_ev_)) { }
 
-    Stream(Stream&) = delete;
+    SslStream(SslStream&) = delete;
 
-    Stream(Stream&& other)
-        : read_sock_(other.read_sock_.detach())
+    SslStream(SslStream&& other)
+        : ssl_(std::exchange(other.ssl_, nullptr))
+        , read_sock_(other.read_sock_.detach())
         , write_sock_(other.write_sock_.detach())
         , read_ev_(std::move(other.read_ev_))
         , write_ev_(std::move(other.write_ev_))
         , read_awaiter_(std::move(other.read_awaiter_))
         , write_awaiter_(std::move(other.write_awaiter_)) {}
 
-    ~Stream() { close(); }
+    ~SslStream() { close(); }
 
     void close() {
+        if (ssl_) {
+            wolfSSL_shutdown(ssl_);
+            wolfSSL_free(ssl_);
+            ssl_ = nullptr;
+        }
         read_awaiter_.destroy();
         write_awaiter_.destroy();
         read_sock_.close();
@@ -53,7 +58,7 @@ struct Stream: NonCopyable {
 
         Buffer result(sz, 0);
         co_await read_awaiter_;
-        sz = read_sock_.recv((char*)result.data(), sz, 0);
+        sz = wolfSSL_read(ssl_, result.data(), result.size());
         if (sz == -1) {
             throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
         }
@@ -67,7 +72,7 @@ struct Stream: NonCopyable {
         while (total_write < buf.size()) {
             // FIXME: how to handle write event?
             // co_await write_awaiter_;
-            ssize_t sz = write_sock_.send(buf.data() + total_write, buf.size() - total_write, 0);
+            ssize_t sz = wolfSSL_write(ssl_, buf.data() + total_write, buf.size() - total_write);
             if (sz == -1) {
                 throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
             }
@@ -85,7 +90,7 @@ private:
         int total_read = 0;
         do {
             co_await read_awaiter_;
-            current_read = read_sock_.recv(result.data() + total_read, chunk_size, 0);
+            current_read = wolfSSL_read(ssl_, result.data() + total_read, chunk_size);
             if (current_read == -1) {
                 throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
             }
@@ -95,8 +100,8 @@ private:
         } while (current_read > 0);
         co_return result;
     }
-
 private:
+    WOLFSSL* ssl_{nullptr};
     Socket read_sock_;
     Socket write_sock_;
     Event read_ev_;
@@ -108,4 +113,4 @@ private:
 
 } // namespace asyncio
 
-#endif // ASYNCIO_STREAM_H
+#endif // ASYNCIO_SSLSTREAM_H

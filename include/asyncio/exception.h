@@ -4,9 +4,12 @@
 
 #ifndef ASYNCIO_EXCEPTION_H
 #define ASYNCIO_EXCEPTION_H
-#include <asyncio/asyncio_ns.h>
-#include <exception>
-ASYNCIO_NS_BEGIN
+#include <stdexcept>
+#include <string>
+
+namespace asyncio
+{
+
 struct TimeoutError: std::exception {
     [[nodiscard]] const char* what() const noexcept override {
         return "TimeoutError";
@@ -25,5 +28,29 @@ struct InvalidFuture: std::exception {
     }
 };
 
-ASYNCIO_NS_END
+struct SocketCreationError : std::exception {
+    [[nodiscard]] const char* what() const noexcept override {
+        return "socket creation failed (socket == -1)";
+    }
+};
+
+struct DuplicationError : std::exception {
+    [[nodiscard]] const char* what() const noexcept override {
+        return "Descriptor duplication error";
+    }
+};
+
+
+struct SslHandshakeError : std::exception {
+    SslHandshakeError(int errcode) : msg("SSL Handshake error: " + std::to_string(errcode)) {}
+
+    [[nodiscard]] const char* what() const noexcept override {
+        return msg.c_str();
+    }
+
+    std::string msg;
+};
+
+}
+
 #endif // ASYNCIO_EXCEPTION_H

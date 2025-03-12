@@ -32,9 +32,8 @@ struct EpollSelector {
             throw;
         }
     }
-    std::vector<Event> select(int timeout /* ms */) {
+    void select(int timeout /* ms */, std::vector<Event>& events) {
         errno = 0;
-        std::vector<epoll_event> events;
         events.resize(register_event_count_);
         int ndfs = epoll_wait(epfd_, events.data(), register_event_count_, timeout);
         std::vector<Event> result;
@@ -49,7 +48,6 @@ struct EpollSelector {
                 handle_info->handle = (Handle*)&handle_info->handle;
             }
         }
-        return result;
     }
     ~EpollSelector() {
 #ifdef _WIN32
