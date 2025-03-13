@@ -74,15 +74,14 @@ Task<int> open_socket_raw(std::string_view ip, uint16_t port, int type, int prot
 
 Task<int> _ssl_connect(WOLFSSL* ssl, int sockfd)
 {
+    auto& loop = get_event_loop();
     while ((wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         int err = wolfSSL_get_error(ssl, 0);
         if (err == WOLFSSL_ERROR_WANT_READ) {
             Event ev { .fd = sockfd, .flags = Event::Flags::EVENT_READ };
-            auto& loop = get_event_loop();
             co_await loop.wait_event(ev);
         } else if (err == WOLFSSL_ERROR_WANT_WRITE) {
             Event ev { .fd = sockfd, .flags = Event::Flags::EVENT_WRITE };
-            auto& loop = get_event_loop();
             co_await loop.wait_event(ev);
         } else {
             co_return err;
@@ -95,6 +94,11 @@ Task<int> _ssl_connect(WOLFSSL* ssl, int sockfd)
 Task<Stream> open_tcp(std::string_view ip, uint16_t port) {
     int sockfd = co_await open_socket_raw(ip, port, SOCK_STREAM, IPPROTO_TCP);
     co_return Stream(sockfd);
+}
+
+Task<Datagram> open_udp(std::string_view ip, uint16_t port) {
+    int sockfd = co_await open_socket_raw(ip, port, SOCK_DGRAM, IPPROTO_UDP);
+    co_return Datagram(sockfd);
 }
 
 Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t port) {
@@ -114,36 +118,5 @@ Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t por
 
     co_return SslStream(ssl, sockfd);
 }
-//
-//
-// Task<Datagram> open_udp(std::string_view ip, uint16_t port) {
-//     addrinfo hints { .ai_family = AF_UNSPEC, .ai_socktype = SOCK_DGRAM};
-//     addrinfo *server_info {nullptr};
-//     auto service = std::to_string(port);
-//     // TODO: getaddrinfo is a blocking api
-//     if (int rv = getaddrinfo(ip.data(), service.c_str(), &hints, &server_info);
-//             rv != 0) {
-//         throw std::system_error(std::make_error_code(std::errc::address_not_available));
-//     }
-//     finally{ freeaddrinfo(server_info); };
-//
-//     int sockfd = -1;
-//     for (auto p = server_info; p != nullptr; p = p->ai_next) {
-//         if ((sockfd = ::socket(p->ai_family, p->ai_socktype | SOCK_NONBLOCK, p->ai_protocol)) == -1) {
-//             continue;
-//         }
-//         socket::set_blocking(sockfd, false);
-//         if (!::connect(sockfd, p->ai_addr, p->ai_addrlen)) {
-//             break;
-//         }
-//         close(sockfd);
-//         sockfd = -1;
-//     }
-//     if (sockfd == -1) {
-//         throw std::system_error(std::make_error_code(std::errc::address_not_available));
-//     }
-//
-//     co_return Datagram {sockfd};
-// }
 
 } // namespace asyncio

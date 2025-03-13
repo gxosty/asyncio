@@ -5,7 +5,7 @@
 #ifndef ASYNCIO_OPEN_CONNECTION_H
 #define ASYNCIO_OPEN_CONNECTION_H
 #include "stream.h"
-// #include <asyncio/datagram.h>
+#include "datagram.h"
 #include "task.h"
 
 #ifdef ASYNCIO_WITH_SSL
@@ -17,8 +17,8 @@
 namespace asyncio {
 
 Task<Stream> open_tcp(std::string_view ip, uint16_t port);
+Task<Datagram> open_udp(std::string_view ip, uint16_t port);
 Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t port);
-// Task<Datagram> open_udp(std::string_view ip, uint16_t port);
 
 } // namespace asyncio
 

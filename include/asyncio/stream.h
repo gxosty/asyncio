@@ -11,11 +11,10 @@
 #include "task.h"
 #include "socket.h"
 #include "types.h"
+#include "errno.h"
 #include <unistd.h>
 #include <utility>
 #include <vector>
-
-#include "errno.h"
 
 namespace asyncio
 {
