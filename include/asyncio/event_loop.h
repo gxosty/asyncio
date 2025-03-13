@@ -3,16 +3,11 @@
 //
 #ifndef ASYNCIO_EVENT_LOOP_H
 #define ASYNCIO_EVENT_LOOP_H
-#define FMT_HEADER_ONLY
 
-#ifdef ASYNCIO_WITH_FMT
-#include <fmt/core.h>
-#include <fmt/format.h>
-#endif
-#include <asyncio/handle.h>
-#include <asyncio/noncopyable.h>
-#include <asyncio/concept/future.h>
-#include <asyncio/selector/selector.h>
+#include "handle.h"
+#include "noncopyable.h"
+#include "concept/future.h"
+#include "selector/selector.h"
 #include <utility>
 #include <unordered_set>
 #include <algorithm>
@@ -20,7 +15,9 @@
 #include <chrono>
 #include <memory>
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 class EventLoop: private NonCopyable {
     using MSDuration = std::chrono::milliseconds;
 public:
@@ -121,6 +118,7 @@ private:
 };
 
 EventLoop& get_event_loop();
-ASYNCIO_NS_END
+
+} // namespace asyncio
 
 #endif // ASYNCIO_EVENT_LOOP_H

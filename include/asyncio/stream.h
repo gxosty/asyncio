@@ -29,8 +29,6 @@ struct Stream: NonCopyable {
         , read_awaiter_(get_event_loop().wait_event(read_ev_))
         , write_awaiter_(get_event_loop().wait_event(write_ev_)) { }
 
-    Stream(Stream&) = delete;
-
     Stream(Stream&& other)
         : read_sock_(other.read_sock_.detach())
         , write_sock_(other.write_sock_.detach())

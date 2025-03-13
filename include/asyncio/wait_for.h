@@ -4,15 +4,17 @@
 
 #ifndef ASYNCIO_WAIT_FOR_H
 #define ASYNCIO_WAIT_FOR_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/concept/future.h>
-#include <asyncio/concept/awaitable.h>
-#include <asyncio/event_loop.h>
-#include <asyncio/exception.h>
-#include <asyncio/schedule_task.h>
-#include <asyncio/result.h>
+#include "concept/future.h"
+#include "concept/awaitable.h"
+#include "event_loop.h"
+#include "exception.h"
+#include "schedule_task.h"
+#include "result.h"
 #include <chrono>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
+
 namespace detail {
 template<typename R, typename Duration>
 struct WaitForAwaiter: NonCopyable {
@@ -105,5 +107,7 @@ template<concepts::Awaitable Fut, typename Rep, typename Period>
 Task<AwaitResult<Fut>> wait_for(Fut&& fut, std::chrono::duration<Rep, Period> timeout) {
     return detail::wait_for(no_wait_at_initial_suspend, std::forward<Fut>(fut), timeout);
 }
-ASYNCIO_NS_END
+
+} // namespace asyncio
+
 #endif // ASYNCIO_WAIT_FOR_H

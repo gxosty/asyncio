@@ -4,8 +4,10 @@
 
 #ifndef ASYNCIO_VOID_VALUE_H
 #define ASYNCIO_VOID_VALUE_H
-#include <asyncio/asyncio_ns.h>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
+
 struct VoidValue { };
 
 namespace detail {
@@ -18,5 +20,6 @@ struct GetTypeIfVoid<void>: std::type_identity<VoidValue> {};
 template<typename T>
 using GetTypeIfVoid_t = typename detail::GetTypeIfVoid<T>::type;
 
-ASYNCIO_NS_END
+} // namespace asyncio
+
 #endif // ASYNCIO_VOID_VALUE_H

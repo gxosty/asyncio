@@ -4,15 +4,15 @@
 
 #ifndef ASYNCIO_START_SERVER_H
 #define ASYNCIO_START_SERVER_H
-#include "fmt/core.h"
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/stream.h>
-#include <asyncio/finally.h>
-#include <asyncio/schedule_task.h>
+#include "stream.h"
+#include "finally.h"
+#include "schedule_task.h"
 #include <list>
 #include <sys/types.h>
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 namespace concepts {
 template<typename CONNECT_CB>
 concept ConnectCb = requires(CONNECT_CB cb) {
@@ -40,7 +40,7 @@ struct Server: NonCopyable {
             co_await ev_awaiter;
             int clientfd = ::accept(fd_, reinterpret_cast<sockaddr*>(&remoteaddr), &addrlen);
             if (clientfd == -1) { continue; }
-            connected.emplace_back(schedule_task(connect_cb_(Stream{clientfd, remoteaddr})));
+            connected.emplace_back(schedule_task(connect_cb_(Stream{clientfd})));
             // garbage collect
             clean_up_connected(connected);
         }
@@ -108,6 +108,6 @@ Task<Server<CONNECT_CB>> start_server(CONNECT_CB cb, std::string_view ip, uint16
     co_return Server{cb, serverfd};
 }
 
-ASYNCIO_NS_END
+} // namespace asyncio
 
 #endif // ASYNCIO_START_SERVER_H

@@ -28,8 +28,6 @@ struct SslStream: NonCopyable {
         , read_awaiter_(get_event_loop().wait_event(read_ev_))
         , write_awaiter_(get_event_loop().wait_event(write_ev_)) { }
 
-    SslStream(SslStream&) = delete;
-
     SslStream(SslStream&& other)
         : ssl_(std::exchange(other.ssl_, nullptr))
         , read_sock_(other.read_sock_.detach())

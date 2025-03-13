@@ -4,10 +4,11 @@
 
 #ifndef ASYNCIO_SCHEDULE_TASK_H
 #define ASYNCIO_SCHEDULE_TASK_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/noncopyable.h>
-#include <asyncio/concept/future.h>
-ASYNCIO_NS_BEGIN
+#include "noncopyable.h"
+#include "concept/future.h"
+
+namespace asyncio
+{
 
 template<concepts::Future Task>
 struct ScheduledTask: private NonCopyable {
@@ -52,5 +53,6 @@ ScheduledTask<Fut> schedule_task(Fut&& fut) {
     return ScheduledTask { std::forward<Fut>(fut) };
 }
 
-ASYNCIO_NS_END
+} // namespace asyncio
+
 #endif // ASYNCIO_SCHEDULE_TASK_H

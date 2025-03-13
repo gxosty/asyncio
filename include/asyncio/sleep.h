@@ -4,11 +4,13 @@
 
 #ifndef ASYNCIO_SLEEP_H
 #define ASYNCIO_SLEEP_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/task.h>
-#include <asyncio/noncopyable.h>
+#include "task.h"
+#include "noncopyable.h"
 #include <chrono>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
+
 namespace detail {
 template<typename Duration>
 struct SleepAwaiter: private NonCopyable {
@@ -37,5 +39,7 @@ Task<> sleep(std::chrono::duration<Rep, Period> delay) {
 }
 
 using namespace std::chrono_literals;
-ASYNCIO_NS_END
+
+} // namespace asyncio
+
 #endif // ASYNCIO_SLEEP_H

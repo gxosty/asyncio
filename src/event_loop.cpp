@@ -7,7 +7,9 @@
 
 namespace ranges = std::ranges;
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 EventLoop& get_event_loop() {
     static EventLoop loop;
     return loop;
@@ -89,4 +91,5 @@ void CoroHandle::cancel() {
         get_event_loop().cancel_handle(*this);
     }
 }
-ASYNCIO_NS_END
+
+} // namespace asyncio

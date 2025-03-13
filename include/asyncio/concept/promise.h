@@ -2,10 +2,12 @@
 // Created by netcan on 2021/12/13.
 //
 #ifndef ASYNCIO_PROMISE_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/concept/awaitable.h>
-#include <asyncio/concept/future.h>
-ASYNCIO_NS_BEGIN
+#include "awaitable.h"
+#include "future.h"
+
+namespace asyncio
+{
+
 namespace concepts {
 template<typename P>
 concept Promise = requires (P p) {
@@ -17,5 +19,7 @@ concept Promise = requires (P p) {
               requires        { p.return_void();   });
 };
 }
-ASYNCIO_NS_END
+
+} // namespace asyncio
+
 #endif

@@ -4,16 +4,18 @@
 
 #ifndef ASYNCIO_TASK_H
 #define ASYNCIO_TASK_H
-#include <asyncio/handle.h>
-#include <asyncio/event_loop.h>
-#include <asyncio/result.h>
-#include <asyncio/concept/promise.h>
+#include "handle.h"
+#include "event_loop.h"
+#include "result.h"
+#include "concept/promise.h"
 #include <coroutine>
 #include <cassert>
 #include <variant>
 #include <memory>
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 struct NoWaitAtInitialSuspend {};
 inline constexpr NoWaitAtInitialSuspend no_wait_at_initial_suspend;
 template<typename R = void>
@@ -115,13 +117,6 @@ struct Task: private NonCopyable {
             coro_handle::from_promise(*this).resume();
         }
         const std::source_location& get_frame_info() const final { return frame_info_; }
-        void dump_backtrace(size_t depth = 0) const final {
-#ifdef ASYNCIO_WITH_FMT            
-            fmt::print("[{}] {}\n", depth, frame_name());
-            if (continuation_) { continuation_->dump_backtrace(depth + 1); }
-            else { fmt::print("\n"); }
-#endif
-        }
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         const bool wait_at_initial_suspend_ {true};
@@ -144,5 +139,7 @@ private:
 
 static_assert(concepts::Promise<Task<>::promise_type>);
 static_assert(concepts::Future<Task<>>);
-ASYNCIO_NS_END
+
+} // namespace asyncio
+
 #endif // ASYNCIO_TASK_H

@@ -1,4 +1,5 @@
 #include <asyncio/connection.h>
+#include <asyncio/event_loop.h>
 #include <asyncio/exception.h>
 #include <asyncio/errno.h>
 
@@ -8,9 +9,10 @@
     #include <arpa/inet.h>
 #endif
 
-ASYNCIO_NS_BEGIN
-namespace detail {
-Task<bool> connect(int fd, const sockaddr *addr, socklen_t len) noexcept {
+namespace asyncio
+{
+
+Task<bool> _connect(int fd, const sockaddr *addr, socklen_t len) noexcept {
     int rc = ::connect(fd, addr, len);
     if (rc == 0) { co_return true; }
     if (rc < 0
@@ -33,8 +35,6 @@ Task<bool> connect(int fd, const sockaddr *addr, socklen_t len) noexcept {
         co_return false;
     }
     co_return result == 0;
-}
-
 }
 
 Task<int> open_socket_raw(std::string_view ip, uint16_t port, int type, int protocol)
@@ -60,7 +60,7 @@ Task<int> open_socket_raw(std::string_view ip, uint16_t port, int type, int prot
         throw SocketCreationError();
     }
 
-    if (!co_await detail::connect(
+    if (!co_await _connect(
             sockfd,
             (sockaddr*)&addr,
             addr.ss_family == AF_INET ? sizeof(sockaddr_in) : sizeof(sockaddr_in6)))
@@ -72,7 +72,7 @@ Task<int> open_socket_raw(std::string_view ip, uint16_t port, int type, int prot
     co_return sockfd;
 }
 
-Task<int> ssl_connect(WOLFSSL* ssl, int sockfd)
+Task<int> _ssl_connect(WOLFSSL* ssl, int sockfd)
 {
     while ((wolfSSL_connect(ssl)) != WOLFSSL_SUCCESS) {
         int err = wolfSSL_get_error(ssl, 0);
@@ -103,7 +103,7 @@ Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t por
     WOLFSSL* ssl = wolfSSL_new(ctx);
     wolfSSL_set_fd(ssl, sockfd);
 
-    int res = co_await ssl_connect(ssl, sockfd);
+    int res = co_await _ssl_connect(ssl, sockfd);
 
     if (res != WOLFSSL_SUCCESS)
     {
@@ -146,4 +146,4 @@ Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t por
 //     co_return Datagram {sockfd};
 // }
 
-ASYNCIO_NS_END
+} // namespace asyncio

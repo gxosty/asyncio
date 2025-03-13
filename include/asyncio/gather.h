@@ -4,15 +4,17 @@
 
 #ifndef ASYNCIO_GATHER_H
 #define ASYNCIO_GATHER_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/task.h>
-#include <asyncio/void_value.h>
-#include <asyncio/noncopyable.h>
-#include <asyncio/concept/awaitable.h>
+#include "task.h"
+#include "void_value.h"
+#include "noncopyable.h"
+#include "concept/awaitable.h"
 #include <stdexcept>
 #include <tuple>
 #include <variant>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
+
 namespace detail {
 template<typename... Rs>
 class GatherAwaiter: NonCopyable {
@@ -107,5 +109,6 @@ auto gather(Futs&&... futs) {
     return detail::gather(no_wait_at_initial_suspend, std::forward<Futs>(futs)...);
 }
 
-ASYNCIO_NS_END
+} // namespace asyncio
+
 #endif // ASYNCIO_GATHER_H

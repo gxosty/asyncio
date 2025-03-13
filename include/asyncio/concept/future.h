@@ -4,11 +4,13 @@
 
 #ifndef ASYNCIO_FUTURE_H
 #define ASYNCIO_FUTURE_H
-#include <asyncio/handle.h>
-#include <asyncio/concept/awaitable.h>
+#include "../handle.h"
+#include "awaitable.h"
 #include <concepts>
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 namespace concepts {
 template<typename Fut>
 concept Future = Awaitable<Fut> && requires(Fut fut) {
@@ -18,6 +20,7 @@ concept Future = Awaitable<Fut> && requires(Fut fut) {
     fut.get_result();
 };
 };
-ASYNCIO_NS_END
+
+} // namespace asyncio
 
 #endif // ASYNCIO_FUTURE_H

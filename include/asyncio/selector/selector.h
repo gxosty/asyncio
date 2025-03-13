@@ -16,10 +16,21 @@ namespace asyncio {
 using Selector = EpollSelector;
 }
 #elif defined(_WIN32)
-#include "wsapoll_selector.h"
-namespace asyncio {
-using Selector = WSAPollSelector;
-}
-#endif
 
-#endif //ASYNCIO_SELECTOR_H
+#define _ASYNCIO_WIN32_SELECTOR_EPOLL
+// #define _ASYNCIO_WIN32_SELECTOR_WSAPOLL
+
+#if defined(_ASYNCIO_WIN32_SELECTOR_EPOLL)
+    #include "epoll_selector.h"
+    namespace asyncio {
+    using Selector = EpollSelector;
+    }
+#elif defined(_ASYNCIO_WIN32_SELECTOR_WSAPOLL)
+    #include "wsapoll_selecetor.h"
+    namespace asyncio {
+    using Selector = WSAPollSelector;
+    }
+#endif // _ASYNCIO_WIN32_SELECTOR
+#endif // _WIN32
+
+#endif // ASYNCIO_SELECTOR_H

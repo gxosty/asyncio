@@ -4,16 +4,13 @@
 
 #ifndef ASYNCIO_HANDLE_H
 #define ASYNCIO_HANDLE_H
-#include <asyncio/asyncio_ns.h>
 #include <cstdint>
 #include <string>
 #include <source_location>
 
-#ifdef ASYNCIO_WITH_FMT
-    #include <fmt/core.h>
-#endif
+namespace asyncio
+{
 
-ASYNCIO_NS_BEGIN
 // for cancelled
 using HandleId = uint64_t;
 
@@ -45,22 +42,12 @@ struct HandleInfo {
 };
 
 struct CoroHandle: Handle {
-    std::string frame_name() const {
-#ifdef ASYNCIO_WITH_FMT
-        const auto& frame_info = get_frame_info();
-        return fmt::format("{} at {}:{}", frame_info.function_name(),
-                           frame_info.file_name(), frame_info.line());
-#else        
-        return "";
-#endif        
-    }
-    virtual void dump_backtrace(size_t depth = 0) const {};
     void schedule();
     void cancel();
 private:
     virtual const std::source_location& get_frame_info() const;
 };
 
-ASYNCIO_NS_END
+} // namespace asyncio
 
 #endif // ASYNCIO_HANDLE_H

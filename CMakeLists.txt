@@ -36,20 +36,7 @@ else()
     add_library(asyncio STATIC ${ASYNCIO_INCLUDES})
 endif(BUILD_SHARED_LIBS)
 
-if(BUILD_TESTING)
-    add_subdirectory(third_party/Catch2)
-    add_subdirectory(third_party/nanobench)
-    add_subdirectory(test)
-endif(BUILD_TESTING)
-
 include(GNUInstallDirs)
-
-if(WITH_FMT)
-    find_package(fmt REQUIRED)
-    target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WITH_FMT=1)
-    message(STATUS "Enabled fmt library for task call stack dumping")
-endif(WITH_FMT)
 
 if(WITH_WOLFSSL)
     if(WOLFSSL_INCLUDE_DIR)

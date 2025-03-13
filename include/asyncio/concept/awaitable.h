@@ -4,10 +4,12 @@
 
 #ifndef ASYNCIO_AWAITABLE_H
 #define ASYNCIO_AWAITABLE_H
-#include <asyncio/asyncio_ns.h>
 #include <coroutine>
 #include <utility>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
+
 namespace detail {
 template<typename A>
 struct GetAwaiter: std::type_identity<A> { };
@@ -46,5 +48,6 @@ using AwaitResult = decltype(std::declval<detail::GetAwaiter_t<A>>().await_resum
 static_assert(concepts::Awaitable<std::suspend_always>);
 static_assert(concepts::Awaitable<std::suspend_never>);
 
-ASYNCIO_NS_END
+} // namespace asyncio
+
 #endif // ASYNCIO_AWAITABLE_H

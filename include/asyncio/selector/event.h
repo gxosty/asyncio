@@ -5,8 +5,7 @@
 #ifndef ASYNCIO_EVENT_H
 #define ASYNCIO_EVENT_H
 
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/handle.h>
+#include "../handle.h"
 #include <cstdint>
 
 #if defined(__APPLE__)
@@ -15,12 +14,19 @@
 #elif defined(__linux__)
     #include <sys/epoll.h>
     using Flags_t = uint32_t;
-#elif defined (_WIN32)
-    #include <winsock2.h>
+#elif defined(_WIN32)
+    #if defined(_ASYNCIO_WIN32_SELECTOR_WSAPOLL)
+        #include <winsock2.h>
+    #elif defined(_ASYNCIO_WIN32_SELECTOR_EPOLL)
+        #include <wepoll.h>
+    #endif // _ASYNCIO_WIN32_SELECTOR
+
     using Flags_t = uint32_t;
 #endif
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 struct Event {
     enum Flags: Flags_t {
     #if defined(__APPLE__)
@@ -30,8 +36,13 @@ struct Event {
         EVENT_READ = EPOLLIN,
         EVENT_WRITE = EPOLLOUT
     #elif defined(_WIN32)
+        #if defined(_ASYNCIO_WIN32_SELECTOR_EPOLL)
+        EVENT_READ = EPOLLIN,
+        EVENT_WRITE = EPOLLOUT
+        #elif defined(_ASYNCIO_WIN32_SELECTOR_WSAPOLL)
         EVENT_READ = POLLIN,
         EVENT_WRITE = POLLOUT
+        #endif
     #else
         #error "Unsupported platform"
     #endif
@@ -46,6 +57,7 @@ struct Event {
         return ((fd == other.fd) && (flags == other.flags));
     }
 };
-ASYNCIO_NS_END
+
+} // namespace asyncio
 
 #endif //ASYNCIO_EVENT_H

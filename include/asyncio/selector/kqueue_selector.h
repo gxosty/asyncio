@@ -4,8 +4,7 @@
 
 #ifndef ASYNCIO_KQUEUE_SELECTOR_H
 #define ASYNCIO_KQUEUE_SELECTOR_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/selector/event.h>
+#include "event.h"
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
@@ -17,8 +16,9 @@
 #include <ranges>
 #include <memory>
 
+namespace asyncio
+{
 
-ASYNCIO_NS_BEGIN
 struct KQueueSelector {
     KQueueSelector(): kq_(kqueue()) {
         if (kq_ < 0) {
@@ -103,8 +103,10 @@ private:
 will return immediately even if there is a Fa timeout specified unlike select(2)."
     https://www.opennet.ru/man.shtml?topic=kevent
     *BUT* asyncio/test/ut/selector_test.cpp not pass if use zero (0).
+    [test directory is deleted (13.03.2025)]
     */
 };
 
-ASYNCIO_NS_END
+} // namespace asyncio
+
 #endif //ASYNCIO_KQUEUE_SELECTOR_H

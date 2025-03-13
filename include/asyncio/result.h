@@ -4,11 +4,12 @@
 
 #ifndef ASYNCIO_RESULT_H
 #define ASYNCIO_RESULT_H
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/exception.h>
+#include "exception.h"
 #include <variant>
 #include <optional>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
 
 template<typename T>
 struct Result {
@@ -70,5 +71,6 @@ private:
     std::optional<std::exception_ptr> result_;
 };
 
-ASYNCIO_NS_END
+} // namespace asyncio
+
 #endif // ASYNCIO_RESULT_H

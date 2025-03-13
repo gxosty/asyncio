@@ -4,9 +4,10 @@
 
 #ifndef ASYNCIO_NONCOPYABLE_H
 #define ASYNCIO_NONCOPYABLE_H
-#include <asyncio/asyncio_ns.h>
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
+
 struct NonCopyable {
 protected:
     NonCopyable() = default;
@@ -16,6 +17,7 @@ protected:
     NonCopyable(const NonCopyable&) = delete;
     NonCopyable& operator=(const NonCopyable&) = delete;
 };
-ASYNCIO_NS_END
+
+} // namespace asyncio
 
 #endif // ASYNCIO_NONCOPYABLE_H

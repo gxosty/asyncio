@@ -4,11 +4,7 @@
 
 #ifndef ASYNCIO_EPOLL_SELECTOR_H
 #define ASYNCIO_EPOLL_SELECTOR_H
-#ifdef ASYNCIO_WITH_FMT
-#include "fmt/core.h"
-#endif // ASYNCIO_WITH_FMT
-#include <asyncio/asyncio_ns.h>
-#include <asyncio/selector/event.h>
+#include "event.h"
 #include <unistd.h>
 #ifdef _WIN32
 #include <wepoll.h>
@@ -20,7 +16,10 @@ typedef HANDLE epoll_handle_t;
 typedef int epoll_handle_t;
 #endif // _WIN32
 #include <vector>
-ASYNCIO_NS_BEGIN
+
+namespace asyncio
+{
+
 struct EpollSelector {
     EpollSelector(): epfd_(epoll_create1(0)) {
 #ifdef _WIN32
@@ -34,13 +33,13 @@ struct EpollSelector {
     }
     void select(int timeout /* ms */, std::vector<Event>& events) {
         errno = 0;
-        events.resize(register_event_count_);
-        int ndfs = epoll_wait(epfd_, events.data(), register_event_count_, timeout);
-        std::vector<Event> result;
+        std::vector<epoll_event> out_events;
+        out_events.resize(register_event_count_);
+        int ndfs = epoll_wait(epfd_, out_events.data(), register_event_count_, timeout);
         for (size_t i = 0; i < ndfs; ++i) {
-            auto handle_info = reinterpret_cast<HandleInfo*>(events[i].data.ptr);
+            auto handle_info = reinterpret_cast<HandleInfo*>(out_events[i].data.ptr);
             if (handle_info->handle != nullptr && handle_info->handle != (Handle*)&handle_info->handle) {
-                result.emplace_back(Event {
+                events.emplace_back(Event {
                     .handle_info = *handle_info
                 });
             } else {
@@ -78,5 +77,7 @@ private:
     epoll_handle_t epfd_;
     int register_event_count_ {1};
 };
-ASYNCIO_NS_END
+
+} // namespace asyncio
+
 #endif // ASYNCIO_EPOLL_SELECTOR_H

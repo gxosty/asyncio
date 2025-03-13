@@ -25,11 +25,11 @@
 
 #ifndef ASYNCIO_FINALLY_H
 #define ASYNCIO_FINALLY_H
-#include <asyncio/asyncio_ns.h>
 #include <functional>
 #include <utility>
 
-ASYNCIO_NS_BEGIN
+namespace asyncio
+{
 
 template<class F>
 class FinalAction {
@@ -69,6 +69,6 @@ inline FinalAction<F> _finally(F &&f) noexcept {
 #define finally             ASYNCIO_NS::FinalAction _finally_object = [&]()
 #define finally2(func)      ASYNCIO_NS::FinalAction _finally_object = ASYNCIO_NS::_finally(func)
 
-ASYNCIO_NS_END
+} // namespace asyncio
 
 #endif //ASYNCIO_FINALLY_H
