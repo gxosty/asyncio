@@ -40,9 +40,18 @@ struct DuplicationError : std::exception {
     }
 };
 
-
 struct SslHandshakeError : std::exception {
     SslHandshakeError(int errcode) : msg("SSL Handshake error: " + std::to_string(errcode)) {}
+
+    [[nodiscard]] const char* what() const noexcept override {
+        return msg.c_str();
+    }
+
+    std::string msg;
+};
+
+struct SocketIOError : std::exception {
+    SocketIOError(int errcode) : msg("Socket IO error: " + std::to_string(errcode)) {}
 
     [[nodiscard]] const char* what() const noexcept override {
         return msg.c_str();

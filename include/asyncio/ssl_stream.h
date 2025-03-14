@@ -7,6 +7,8 @@
 #include "task.h"
 #include "socket.h"
 #include "types.h"
+#include "exception.h"
+#include "errno.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <utility>
@@ -58,7 +60,7 @@ struct SslStream: NonCopyable {
         co_await read_awaiter_;
         sz = wolfSSL_read(ssl_, result.data(), result.size());
         if (sz == -1) {
-            throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+            throw SocketIOError(sockerrno);
         }
         result.resize(sz);
         co_return result;
@@ -72,7 +74,7 @@ struct SslStream: NonCopyable {
             // co_await write_awaiter_;
             ssize_t sz = wolfSSL_write(ssl_, buf.data() + total_write, buf.size() - total_write);
             if (sz == -1) {
-                throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+                throw SocketIOError(sockerrno);
             }
             total_write += sz;
         }
@@ -90,7 +92,7 @@ private:
             co_await read_awaiter_;
             current_read = wolfSSL_read(ssl_, result.data() + total_read, chunk_size);
             if (current_read == -1) {
-                throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+                throw SocketIOError(sockerrno);
             }
             if (current_read < chunk_size) { result.resize(total_read + current_read); }
             total_read += current_read;

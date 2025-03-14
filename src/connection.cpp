@@ -22,7 +22,7 @@ Task<bool> _connect(int fd, const sockaddr *addr, socklen_t len) noexcept {
             && sockerrno != EINPROGRESS
 #endif // _WIN32
     ) {
-        throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+        throw SocketIOError(sockerrno);
     }
     Event ev { .fd = fd, .flags = Event::Flags::EVENT_WRITE };
     auto& loop = get_event_loop();
@@ -66,7 +66,7 @@ Task<int> open_socket_raw(std::string_view ip, uint16_t port, int type, int prot
             addr.ss_family == AF_INET ? sizeof(sockaddr_in) : sizeof(sockaddr_in6)))
     {
         close(sockfd);
-        throw std::system_error(std::make_error_code(std::errc::address_not_available));
+        throw SocketIOError(sockerrno);
     }
     
     co_return sockfd;

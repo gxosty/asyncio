@@ -11,6 +11,7 @@
 #include "task.h"
 #include "socket.h"
 #include "types.h"
+#include "exception.h"
 #include "errno.h"
 #include <unistd.h>
 #include <utility>
@@ -52,7 +53,7 @@ struct Stream: NonCopyable {
         co_await read_awaiter_;
         sz = read_sock_.recv((char*)result.data(), sz, 0);
         if (sz == -1) {
-            throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+            throw SocketIOError(sockerrno);
         }
         result.resize(sz);
         co_return result;
@@ -66,7 +67,7 @@ struct Stream: NonCopyable {
             // co_await write_awaiter_;
             ssize_t sz = write_sock_.send(buf.data() + total_write, buf.size() - total_write, 0);
             if (sz == -1) {
-                throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+                throw SocketIOError(sockerrno);
             }
             total_write += sz;
         }
@@ -84,7 +85,7 @@ private:
             co_await read_awaiter_;
             current_read = read_sock_.recv(result.data() + total_read, chunk_size, 0);
             if (current_read == -1) {
-                throw std::system_error(std::make_error_code(static_cast<std::errc>(errno)));
+                throw SocketIOError(sockerrno);
             }
             if (current_read < chunk_size) { result.resize(total_read + current_read); }
             total_read += current_read;
