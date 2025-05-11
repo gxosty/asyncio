@@ -68,12 +68,16 @@ void Socket::close()
     }
 }
 
-
 int Socket::detach()
 {
     int fd = _fd;
     _fd = -1;
     return fd;
+}
+
+int Socket::get()
+{
+    return _fd;
 }
 
 bool Socket::set_blocking(bool enabled)

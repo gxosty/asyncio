@@ -72,6 +72,18 @@ Task<int> open_socket_raw(std::string_view ip, uint16_t port, int type, int prot
     co_return sockfd;
 }
 
+Task<Stream> open_tcp(std::string_view ip, uint16_t port) {
+    int sockfd = co_await open_socket_raw(ip, port, SOCK_STREAM, IPPROTO_TCP);
+    co_return Stream(sockfd);
+}
+
+Task<Datagram> open_udp(std::string_view ip, uint16_t port) {
+    int sockfd = co_await open_socket_raw(ip, port, SOCK_DGRAM, IPPROTO_UDP);
+    co_return Datagram(sockfd);
+}
+
+#ifdef ASYNCIO_WITH_SSL
+
 Task<int> _ssl_connect(WOLFSSL* ssl, int sockfd)
 {
     auto& loop = get_event_loop();
@@ -91,16 +103,6 @@ Task<int> _ssl_connect(WOLFSSL* ssl, int sockfd)
     co_return WOLFSSL_SUCCESS;
 }
 
-Task<Stream> open_tcp(std::string_view ip, uint16_t port) {
-    int sockfd = co_await open_socket_raw(ip, port, SOCK_STREAM, IPPROTO_TCP);
-    co_return Stream(sockfd);
-}
-
-Task<Datagram> open_udp(std::string_view ip, uint16_t port) {
-    int sockfd = co_await open_socket_raw(ip, port, SOCK_DGRAM, IPPROTO_UDP);
-    co_return Datagram(sockfd);
-}
-
 Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t port) {
     int sockfd = co_await open_socket_raw(ip, port, SOCK_STREAM, IPPROTO_TCP);
 
@@ -118,5 +120,7 @@ Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t por
 
     co_return SslStream(ssl, sockfd);
 }
+
+#endif // ASYNCIO_WITH_SSL
 
 } // namespace asyncio

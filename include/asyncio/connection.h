@@ -18,7 +18,10 @@ namespace asyncio {
 
 Task<Stream> open_tcp(std::string_view ip, uint16_t port);
 Task<Datagram> open_udp(std::string_view ip, uint16_t port);
+
+#ifdef ASYNCIO_WITH_SSL
 Task<SslStream> open_ssl_tcp(WOLFSSL_CTX* ctx, std::string_view ip, uint16_t port);
+#endif // ASYNCIO_WITH_SSL
 
 } // namespace asyncio
 

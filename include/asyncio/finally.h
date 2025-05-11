@@ -66,8 +66,8 @@ inline FinalAction<F> _finally(F &&f) noexcept {
 #define concat1(a, b)       a ## b
 #define concat2(a, b)       concat1(a, b)
 #define _finally_object     concat2(_finally_object_, __COUNTER__)
-#define finally             ASYNCIO_NS::FinalAction _finally_object = [&]()
-#define finally2(func)      ASYNCIO_NS::FinalAction _finally_object = ASYNCIO_NS::_finally(func)
+#define finally             asyncio::FinalAction _finally_object = [&]()
+#define finally2(func)      asyncio::FinalAction _finally_object = ASYNCIO_NS::_finally(func)
 
 } // namespace asyncio
 
