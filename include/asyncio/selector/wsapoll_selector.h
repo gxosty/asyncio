@@ -29,7 +29,7 @@ public:
         }
 
         int res = WSAPoll((LPWSAPOLLFD)fds.data(), fds.size(), timeout);
-        
+
         if (res <= 0)
         {
             return;
@@ -37,7 +37,7 @@ public:
 
         for (int i = 0; i < fds.size(); i++)
         {
-            if (fds[i].revents & fds[i].events)
+            if (fds[i].revents & (fds[i].events | POLLHUP | POLLERR | POLLNVAL))
             {
                 auto handle_info = reinterpret_cast<HandleInfo*>(&_events[i].handle_info);
                 if (handle_info->handle != nullptr && handle_info->handle != (Handle*)&handle_info->handle) {
