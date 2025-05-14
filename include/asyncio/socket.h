@@ -27,7 +27,6 @@ public:
 
     void close();
     int detach();
-    int get();
     
     bool set_blocking(bool enabled);
 

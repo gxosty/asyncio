@@ -75,11 +75,6 @@ int Socket::detach()
     return fd;
 }
 
-int Socket::get()
-{
-    return _fd;
-}
-
 bool Socket::set_blocking(bool enabled)
 {
 #if defined(_WIN32)
