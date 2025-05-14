@@ -10,15 +10,22 @@
 namespace asyncio {
 using Selector = KQueueSelector;
 }
-#elif defined(__linux)
+#elif defined(__linux__)
 #include "epoll_selector.h"
 namespace asyncio {
 using Selector = EpollSelector;
 }
 #elif defined(_WIN32)
 
+#if !defined(ASYNCIO_WIN32_SELECTOR_EPOLL) && !defined(ASYNCIO_WIN32_SELECTOR_WSAPOLL)
 #define _ASYNCIO_WIN32_SELECTOR_EPOLL
-// #define _ASYNCIO_WIN32_SELECTOR_WSAPOLL
+#else
+#if defined(ASYNCIO_WIN32_SELECTOR_EPOLL)
+#define _ASYNCIO_WIN32_SELECTOR_EPOLL
+#else
+#define _ASYNCIO_WIN32_SELECTOR_WSAPOLL
+#endif // ASYNCIO_WIN32_SELECTOR_EPOLL
+#endif // !ASYNCIO_WIN32_SELECTOR_EPOLL && !ASYNCIO_WIN32_SELECTOR_WSAPOLL
 
 #if defined(_ASYNCIO_WIN32_SELECTOR_EPOLL)
     #include "epoll_selector.h"
@@ -26,7 +33,7 @@ using Selector = EpollSelector;
     using Selector = EpollSelector;
     }
 #elif defined(_ASYNCIO_WIN32_SELECTOR_WSAPOLL)
-    #include "wsapoll_selecetor.h"
+    #include "wsapoll_selector.h"
     namespace asyncio {
     using Selector = WSAPollSelector;
     }

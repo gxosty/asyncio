@@ -50,7 +50,12 @@ if(WITH_WOLFSSL)
 endif(WITH_WOLFSSL)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    include(cmake/wepoll.cmake)
+    if(ASYNCIO_WIN32_SELECTOR_WSAPOLL)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WIN32_SELECTOR_WSAPOLL=1)
+    else(ASYNCIO_WIN32_SELECTOR_EPOLL)
+        include(cmake/wepoll.cmake)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC ASYNCIO_WIN32_SELECTOR_EPOLL=1)
+    endif()
 endif()
 
 set_target_properties(${PROJECT_NAME}

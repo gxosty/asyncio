@@ -6,6 +6,7 @@
 #define ASYNCIO_EVENT_H
 
 #include "../handle.h"
+#include "selector.h"
 #include <cstdint>
 
 #if defined(__APPLE__)
