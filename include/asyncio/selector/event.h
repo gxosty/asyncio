@@ -6,9 +6,8 @@
 #define ASYNCIO_EVENT_H
 
 #include "../handle.h"
-#include "selector.h"
-#include <cstdint>
 
+#include <cstdint>
 #if defined(__APPLE__)
     #include <sys/event.h>
     using Flags_t = int16_t;
@@ -16,6 +15,7 @@
     #include <sys/epoll.h>
     using Flags_t = uint32_t;
 #elif defined(_WIN32)
+    #include "win32_selector_defs.h"
     #if defined(_ASYNCIO_WIN32_SELECTOR_WSAPOLL)
         #include <winsock2.h>
     #elif defined(_ASYNCIO_WIN32_SELECTOR_EPOLL)

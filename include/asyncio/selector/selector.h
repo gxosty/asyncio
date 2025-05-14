@@ -17,15 +17,7 @@ using Selector = EpollSelector;
 }
 #elif defined(_WIN32)
 
-#if !defined(ASYNCIO_WIN32_SELECTOR_EPOLL) && !defined(ASYNCIO_WIN32_SELECTOR_WSAPOLL)
-#define _ASYNCIO_WIN32_SELECTOR_EPOLL
-#else
-#if defined(ASYNCIO_WIN32_SELECTOR_EPOLL)
-#define _ASYNCIO_WIN32_SELECTOR_EPOLL
-#else
-#define _ASYNCIO_WIN32_SELECTOR_WSAPOLL
-#endif // ASYNCIO_WIN32_SELECTOR_EPOLL
-#endif // !ASYNCIO_WIN32_SELECTOR_EPOLL && !ASYNCIO_WIN32_SELECTOR_WSAPOLL
+#include "win32_selector_defs.h"
 
 #if defined(_ASYNCIO_WIN32_SELECTOR_EPOLL)
     #include "epoll_selector.h"
